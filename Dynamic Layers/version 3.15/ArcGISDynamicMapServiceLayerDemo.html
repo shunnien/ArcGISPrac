@@ -4,7 +4,7 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
-    <title>Image Service Vector Layer</title>
+    <title>ArcGISDynamicMapServiceLayer</title>
     <link rel="stylesheet" href="https://js.arcgis.com/3.15/dijit/themes/claro/claro.css">
     <link rel="stylesheet" href="https://js.arcgis.com/3.15/esri/css/esri.css">
     <style>
@@ -35,7 +35,7 @@
 
 
 <body>
-    <div id="header"> ArcGIS Vector Tile Map</div>
+    <div id="header"> ArcGISDynamicMapServiceLayer Map</div>
     <div id="map">
 
         <div id="feedback" class="shadow">
@@ -44,7 +44,7 @@
                 <strong>Map Layers</strong>
                 <img id="loading" src="https://dl.dropboxusercontent.com/u/2142726/esrijs-samples/loading_black.gif">
                 <br>
-                <div id="layerList" style="float:left;"></div>
+                <div id="layerList"></div>
             </div>
         </div>
     </div>
@@ -62,11 +62,6 @@
         "dojo/query", "dojo/on",
         "dojo/parser", "dojo/_base/array", "dojo/dnd/Source",
         "dojo/domReady!"
-        // "esri/map",
-        // "esri/layers/VectorTileLayer",
-        // "dojo/query", "dojo/on",
-        // "dojo/parser", "dojo/_base/array",
-        // "dojo/domReady!"
     ], function(
         Map, ArcGISDynamicMapServiceLayer,
         DynamicLayerInfo, LayerDataSource,
@@ -76,11 +71,10 @@
         dom, domConstruct, domStyle,
         query, on,
         parser, arrayUtils, Source
-        // Map, ArcGISDynamicMapServiceLayer, ImageParameters,
-        // query, on,
     ) {
         parser.parse();
         var dynamicLayerInfos;
+
         map = new Map("map", {
             center: [121.2028889, 24.8221225],
             basemap: "topo",
@@ -95,7 +89,6 @@
         //     visible: true
         // });
         //map.addLayer(dynamicMapServiceLayer);
-
 
         var dndSource = new Source("layerList");
         dndSource.on("DndDrop", reorderLayers);
@@ -121,7 +114,7 @@
                     position: info.id
                 };
                 if (arrayUtils.indexOf(usaLayer.visibleLayers, info.id) > -1) {
-                    i.visible = false;
+                    i.visible = true;
                 } else {
                     i.visible = false;
                 }

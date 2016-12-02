@@ -46,13 +46,15 @@
 
     var map = new Map("map", {
         center: [121.2028889, 24.8221225],
-        basemap: "streets",
+        //basemap: "streets",
         zoom: 12,
         sliderPosition: "bottom-right",
     });
 
     //Create the ArcGISImageServiceVectorLayer  
-    let basicUrl = "http://gistarcgisvt.motc.gov.tw/arcgis/rest/services/Hosted/GIST_ID_A/VectorTileServer/";
+    // let basicUrl = "http://gistarcgisvt.motc.gov.tw/arcgis/rest/services/Hosted/GIST_ID_A/VectorTileServer/";
+    let basicUrl = "http://gistarcgisvt.motc.gov.tw/arcgis/rest/services/Hosted/GIST_A_1704/VectorTileServer/";
+
     var tileLyr = new VectorTileLayer(basicUrl);
 
     //Set the size of the arrows based on wind speed  
