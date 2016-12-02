@@ -30,12 +30,6 @@
             font-size: 1.8em;
             font-weight: bold;
         }
-        
-        #feedback {
-            height: 300px;
-            width: 300px;
-            z-index: 10;
-        }
     </style>
 </head>
 
@@ -94,13 +88,6 @@
             sliderPosition: "bottom-right",
         });
 
-        //Create the ArcGISImageServiceVectorLayer  
-        // let basicUrl = "http://gistarcgisvt.motc.gov.tw/arcgis/rest/services/Hosted/GIST_ID_A/VectorTileServer/";
-        // var tileLyr = new VectorTileLayer(basicUrl);
-
-        //Set the size of the arrows based on wind speed  
-        //tileLyr.setStyle(basicUrl + "resources/styles/root.json");
-
         // var imageParameters = new ImageParameters();
         // imageParameters.format = "jpeg"; //set the image type to PNG24, note default is PNG8.
         // var dynamicMapServiceLayer = new ArcGISDynamicMapServiceLayer("http://gist-arcgis.motc.gov.tw/arcgis/rest/services/GIST/GIST_P_1/MapServer", {
@@ -119,12 +106,12 @@
         // usaLayer = new ArcGISDynamicMapServiceLayer("http://gist-arcgis.motc.gov.tw/arcgis/rest/services/GIST/GIST_P_1/MapServer", {
         //     "id": "usa"
         // });
-        // usaLayer = new ArcGISDynamicMapServiceLayer("http://gist-arcgis.motc.gov.tw/arcgis/rest/services/GIST/GIST_P_2/MapServer", {
-        //     "id": "usa"
-        // });
-        usaLayer = new ArcGISDynamicMapServiceLayer("http://gist-arcgis.motc.gov.tw/arcgis/rest/services/GIST/GIST_P_3/MapServer", {
+        usaLayer = new ArcGISDynamicMapServiceLayer("http://gist-arcgis.motc.gov.tw/arcgis/rest/services/GIST/GIST_P_2/MapServer", {
             "id": "usa"
         });
+        // usaLayer = new ArcGISDynamicMapServiceLayer("http://gist-arcgis.motc.gov.tw/arcgis/rest/services/GIST/GIST_P_3/MapServer", {
+        //     "id": "usa"
+        // });
         usaLayer.on("load", function(e) {
             dynamicLayerInfos = e.target.createDynamicLayerInfosFromLayerInfos();
             arrayUtils.forEach(dynamicLayerInfos, function(info) {
