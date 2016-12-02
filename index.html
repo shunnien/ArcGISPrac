@@ -1,0 +1,152 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1,user-scalable=no">
+    <title></title>
+    <!-- <link rel="stylesheet" href="http://js.arcgis.com/3.15/js/dojo/dijit/themes/nihilo/nihilo.css"> -->
+    <link rel="stylesheet" href="http://js.arcgis.com/3.15/esri/css/esri.css">
+    <style>
+    html,
+    body,
+    #map {
+        height: 100%;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+    }
+    
+    body {
+        background-color: #fff;
+        overflow: hidden;
+        font-family: sans-serif;
+    }
+    
+    #ds {
+        background: #556;
+        overflow: hidden;
+        position: absolute;
+        z-index: 2;
+    }
+    </style>
+    <script src="http://js.arcgis.com/3.15/"></script>
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+    <script>
+    var layerMapJson = [{
+        "name": "國家風景區",
+        "link": "GIST_ID_A"
+    }, {
+        "name": "縣道",
+        "link": "GIST_ID_L"
+    }, {
+        "name": "全臺斷層帶",
+        "link": "GIST_L_1637"
+    }];
+    var map;
+    var GEE_BASE_URL = "http://gist-gees.motc.gov.tw";
+    var checkLayers = [];
+    var baseLayers = [];
+    require([
+        "esri/map",
+        "esri/layers/WebTiledLayer", "dojo/parser",
+        "esri/layers/VectorTileLayer",
+        "dojo/on", "dojo/domReady!"
+    ], function(
+        Map, WebTiledLayer, parser, VectorTileLayer, dom,on
+    ) {
+        parser.parse();
+        map = new esri.Map("map", {
+            center: [121.2028889, 24.8221225],
+            zoom: 12,
+            slider: true,
+            sliderPosition: "bottom-right",
+            logo: false,
+            fitExtent: true,
+            maxZoom: 18,
+            minZoom: 8
+        });
+
+        // #region basemap 
+        let basemap0 = new WebTiledLayer(GEE_BASE_URL + "/motc_base_map/query?request=ImageryMaps&channel=1010&version=1&x=${col}&y=${row}&z=${level}", {
+            "id": "baseColor"
+        });
+        baseLayers.push(basemap0);
+        // map.addLayer(basemap0);
+        let baseMap = new esri.layers.WebTiledLayer(GEE_BASE_URL + "/motc_base_map/query?request=VectorMapsRaster&channel=1012&version=29&x=${col}&y=${row}&z=${level}", {
+            "id": "baseMap"
+        });
+        baseLayers.push(baseMap);
+        map.addLayers(baseLayers);
+        // #endregion
+
+        // on(dom.byId("GIST_ID_A"), "change", addVectorLayer($('#GIST_ID_A').val()));
+        // on(dom.byId("GIST_ID_L"), "change", addVectorLayer($('#GIST_ID_A').val()));
+        // on(dom.byId("GIST_L_1637"), "change", addVectorLayer($('#GIST_ID_A').val()));
+
+        $(".veclayers").change(function() {
+            var self = this;
+            addVectorLayer($(self).val());
+        });
+
+        var layerNum = 1;
+        function addVectorLayer(tileName) {
+            let flag = true;
+            for (let i in checkLayers) {
+                if (checkLayers[i].name === tileName) {
+                    flag = false;
+                    var selectLayer = map.getLayer(checkLayers[i].name);
+                    map.removeLayer(selectLayer);
+                    checkLayers.splice(i,1);
+                    break;
+                }
+            }
+            if (flag) {
+                let basicUrl = "http://gistarcgisvt.motc.gov.tw/arcgis/rest/services/Hosted/" + tileName + "/VectorTileServer/";
+                var tileLyr = new VectorTileLayer(basicUrl, {
+                    id: tileName
+                });
+                tileLyr.setStyle(basicUrl + "resources/styles/root.json");
+                map.addLayer(tileLyr);
+                map.reorderLayer(tileLyr,layerNum);
+                checkLayers.push({
+                    selLayer: tileLyr,
+                    name: tileName,
+                    index: layerNum
+                });
+                layerNum ++;
+            }
+        }
+    });
+    </script>
+</head>
+
+<body class="nihilo">
+    <div id="mainWindow" data-dojo-type="dijit/layout/BorderContainer" data-dojo-props="design:'headline',gutters:false" style="width: 100%; height: 100%; margin: 0;">
+        <div id="map" class="shadow" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region:'center'">
+            <!-- drop shadow divs -->
+            <div id="ds">
+                <div class="form-group">
+                    <label for="" class="col-xs-4 control-label">選擇向量圖層</label>
+                    <div class="col-xs-8">
+                        <div class="checkbox">
+                            <label>
+                                <input id="GIST_ID_A" class="veclayers" type="checkbox" value="GIST_ID_A" /> 風景區管理範圍、禁限建等面圖層</label>
+                        </div>
+                        <div class="checkbox">
+                            <label>
+                                <input id="GIST_ID_L" class="veclayers" type="checkbox" value="GIST_ID_L" /> 道路等其他線圖層資料</label>
+                        </div>
+                        <div class="checkbox">
+                            <label>
+                                <input id="GIST_L_1637" class="veclayers" type="checkbox" value="GIST_L_1637" /> 全臺斷層帶</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- end drop shadow divs -->
+        </div>
+    </div>
+</body>
+
+</html>
