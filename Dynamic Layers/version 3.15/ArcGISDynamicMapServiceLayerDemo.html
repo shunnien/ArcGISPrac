@@ -99,12 +99,12 @@
         // usaLayer = new ArcGISDynamicMapServiceLayer("http://gist-arcgis.motc.gov.tw/arcgis/rest/services/GIST/GIST_P_1/MapServer", {
         //     "id": "usa"
         // });
-        usaLayer = new ArcGISDynamicMapServiceLayer("http://gist-arcgis.motc.gov.tw/arcgis/rest/services/GIST/GIST_P_2/MapServer", {
-            "id": "usa"
-        });
-        // usaLayer = new ArcGISDynamicMapServiceLayer("http://gist-arcgis.motc.gov.tw/arcgis/rest/services/GIST/GIST_P_3/MapServer", {
+        // usaLayer = new ArcGISDynamicMapServiceLayer("http://gist-arcgis.motc.gov.tw/arcgis/rest/services/GIST/GIST_P_2/MapServer", {
         //     "id": "usa"
         // });
+        usaLayer = new ArcGISDynamicMapServiceLayer("http://gist-arcgis.motc.gov.tw/arcgis/rest/services/GIST/GIST_P_3/MapServer", {
+            "id": "usa"
+        });
         usaLayer.on("load", function(e) {
             dynamicLayerInfos = e.target.createDynamicLayerInfosFromLayerInfos();
             arrayUtils.forEach(dynamicLayerInfos, function(info) {
@@ -114,7 +114,7 @@
                     position: info.id
                 };
                 if (arrayUtils.indexOf(usaLayer.visibleLayers, info.id) > -1) {
-                    i.visible = true;
+                    i.visible = false;
                 } else {
                     i.visible = false;
                 }

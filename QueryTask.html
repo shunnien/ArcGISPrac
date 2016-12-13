@@ -1,0 +1,147 @@
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Using QueryTask, Query, and FeatureSet</title>
+    <link rel="stylesheet" href="http://js.arcgis.com/3.15/esri/css/esri.css">
+</head>
+
+<body>
+    <input type="button" value="Get Details" id="runQuery" />
+    <div id="mapDiv" style="width:100%; height:100%;">
+    </div>
+    <!-- <input type="button" value="Get Details" id="runQuery" /> -->
+    <!-- <div id="mapDiv" style="width:600px; height:600px; border:1px solid #000;"></div> -->
+</body>
+<script src="http://js.arcgis.com/3.15/"></script>
+<script>
+var GEE_BASE_URL = "//gist-gees.motc.gov.tw";
+var baseLayers = [];
+// AMD
+require([
+    "esri/map",
+    "esri/layers/WebTiledLayer",
+    "esri/layers/ArcGISDynamicMapServiceLayer",
+    "esri/layers/FeatureLayer",
+    "esri/tasks/QueryTask",
+    "esri/tasks/query",
+    "esri/symbols/SimpleMarkerSymbol",
+    "esri/InfoTemplate",
+    "dojo/_base/Color",
+    "dojo/dom",
+    "dojo/on",
+    "dojo/domReady!"
+], function(Map, WebTiledLayer, ArcGISDynamicMapServiceLayer, FeatureLayer, QueryTask, Query, SimpleMarkerSymbol, InfoTemplate, Color, dom, on) {
+    //create map and add layer
+    map = new Map("mapDiv", {
+        center: [121.2028889, 24.8221225],
+        zoom: 12,
+        //nav: false,
+        //slider: true,
+        sliderPosition: "bottom-right",
+        logo: false,
+        //fitExtent: true,
+        maxZoom: 18,
+        minZoom: 8
+    });
+
+    // #region blue color baseMap
+    let baseOneColorMap = new WebTiledLayer(location.protocol +
+        GEE_BASE_URL +
+        "/motc_base_map/query?request=ImageryMaps&channel=1010&version=1&x=${col}&y=${row}&z=${level}", {
+            "id": "baseLayer0"
+        });
+
+    baseLayers.push(baseOneColorMap);
+    // #endregion
+    // #region baseMap
+    let baseMap = new WebTiledLayer(location.protocol +
+        GEE_BASE_URL +
+        "/motc_base_map/query?request=VectorMapsRaster&channel=1012&version=29&x=${col}&y=${row}&z=${level}", {
+            "id": "baseLayer1"
+        });
+    baseLayers.push(baseMap);
+    map.addLayers(baseLayers);
+    // #endregion
+
+    // var layer = new ArcGISDynamicMapServiceLayer("http://gist-arcgis.motc.gov.tw/arcgis/rest/services/GIST/GIST_P_6/MapServer", {
+    //     "id": "test",
+    //     "visible": true
+    // });
+    // layer.setVisibleLayers(["17"]);
+    // map.addLayer(layer);
+
+    // var infoTemplateDemo = new InfoTemplate("Title","content");
+    // layer.setInfoTemplates({
+    //     17: { infoTemplate: infoTemplateDemo }
+    //   });
+
+    //initialize InfoTemplate
+    infoTemplate = new InfoTemplate("Title", "content333");
+    var layer = new FeatureLayer("http://gist-arcgis.motc.gov.tw/arcgis/rest/services/GIST/GIST_P_6/MapServer/17", {
+        mode: FeatureLayer.MODE_AUTO,
+        infoTemplate: infoTemplate,
+        outFields: ["*"]
+    });
+    map.addLayer(layer);
+
+    //initialize query task
+    // queryTask = new QueryTask("http://gist-arcgis.motc.gov.tw/arcgis/rest/services/GIST/GIST_P_6/MapServer/17");
+
+    //initialize query
+    query = new Query();
+    query.returnGeometry = true;
+    query.outFields = ["*"];
+
+    
+
+    //create symbol for selected features
+    symbol = new SimpleMarkerSymbol();
+    symbol.setStyle(SimpleMarkerSymbol.STYLE_SQUARE);
+    symbol.setSize(20);
+    symbol.setColor(new Color([255, 255, 0, 0.5]));
+
+
+    //write "Get Details" button's click event 
+    on(dom.byId("runQuery"), "click", executeQueryTask);
+
+    function executeQueryTask() {
+        //set query based on what user typed in for population;
+        //query.where = "ID = 16";
+        query.where = "1=1";
+        //execute query
+        queryTask.execute(query, showResults);
+    }
+
+    function showResults(featureSet) {
+        //remove all graphics on the maps graphics layer
+        map.graphics.clear();
+
+        //Performance enhancer - assign featureSet array to a single variable.
+        var resultFeatures = featureSet.features;
+        var content = "";
+        for (var j in featureSet.fields) {
+            content += featureSet.fields[j].name + ": ${" + featureSet.fields[j].alias + "}<br />";
+        }
+
+
+        //Loop through each feature returned
+        for (var i = 0, il = resultFeatures.length; i < il; i++) {
+            //Get the current feature from the featureSet.
+            //Feature is a graphic
+            var graphic = resultFeatures[i];
+            graphic.setSymbol("symbol");
+
+            //Set the infoTemplate.
+            graphic.setInfoTemplate(infoTemplate);
+
+            //Add graphic to the map graphics layer.
+            map.graphics.add(graphic);
+        }
+    }
+
+    //executeQueryTask();
+});
+</script>
+
+</html>

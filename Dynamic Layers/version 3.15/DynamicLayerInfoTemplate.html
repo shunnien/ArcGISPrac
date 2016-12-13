@@ -1,0 +1,114 @@
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Using QueryTask, Query, and FeatureSet</title>
+    <link rel="stylesheet" href="//js.arcgis.com/3.15/esri/css/esri.css">
+</head>
+
+<body>
+    <div id="mapDiv" style="width:100%; height:100%;">
+    </div>
+    <!-- <input type="button" value="Get Details" id="runQuery" /> -->
+    <!-- <div id="mapDiv" style="width:600px; height:600px; border:1px solid #000;"></div> -->
+</body>
+<script src="//js.arcgis.com/3.15/"></script>
+<script>
+var GEE_BASE_URL = "//gist-gees.motc.gov.tw";
+var baseLayers = [];
+// AMD
+require([
+    "esri/map",
+    "esri/layers/WebTiledLayer",
+    "esri/layers/ArcGISDynamicMapServiceLayer",
+    "esri/layers/FeatureLayer",
+    "esri/request",
+    "esri/InfoTemplate",
+    "dojo/_base/Color",
+    "dojo/dom",
+    "dojo/on",
+    "dojo/domReady!"
+], function(Map, WebTiledLayer, ArcGISDynamicMapServiceLayer, FeatureLayer, esriRequest, InfoTemplate, Color, dom, on) {
+    //create map and add layer
+    map = new Map("mapDiv", {
+        center: [121.2028889, 24.8221225],
+        zoom: 12,
+        //nav: false,
+        slider: true,
+        sliderPosition: "bottom-right",
+        logo: false,
+        fitExtent: true,
+        maxZoom: 18,
+        minZoom: 8
+    });
+
+    // #region blue color baseMap
+    let baseOneColorMap = new WebTiledLayer(location.protocol +
+        GEE_BASE_URL +
+        "/motc_base_map/query?request=ImageryMaps&channel=1010&version=1&x=${col}&y=${row}&z=${level}", {
+            "id": "baseLayer0"
+        });
+
+    baseLayers.push(baseOneColorMap);
+    // #endregion
+    // #region baseMap
+    let baseMap = new WebTiledLayer(location.protocol +
+        GEE_BASE_URL +
+        "/motc_base_map/query?request=VectorMapsRaster&channel=1012&version=29&x=${col}&y=${row}&z=${level}", {
+            "id": "baseLayer1"
+        });
+    baseLayers.push(baseMap);
+    map.addLayers(baseLayers);
+    // #endregion
+
+    var layer = new ArcGISDynamicMapServiceLayer("http://gist-arcgis.motc.gov.tw/arcgis/rest/services/GIST/GIST_P_6/MapServer", {
+        "id": "test",
+        visible: true
+    });
+    layer.setVisibleLayers(["17"]);
+    map.addLayer(layer);
+
+    // get fields data
+    var requestHandle = esriRequest({
+        "url": "http://gist-arcgis.motc.gov.tw/arcgis/rest/services/GIST/GIST_P_6/MapServer/17",
+        "content": {
+            "f": "json"
+        },
+        "callbackParamName": "callback"
+    });
+    requestHandle.then(requestSucceeded, null);
+    var content = "${*}";
+
+    function requestSucceeded(response, io) {
+        // field names and aliases
+        content = "";
+        if (response.hasOwnProperty("fields")) {
+            console.log("got some fields");
+            for (var i in response.fields) {
+                var fieldInfo = response.fields[i];
+                if (fieldInfo.name !== "OBJECTID" 
+                    && fieldInfo.name !== "Shape" 
+                    && fieldInfo.name !== "updatetime" 
+                    && fieldInfo.name !== "Updatetime" 
+                    && fieldInfo.name !== "UniqueID") {
+                    content += fieldInfo.name + " : ${" + fieldInfo.name + "}<br />";
+                }
+
+            }
+        } else {
+            content += "${*}";
+        }
+        //initialize InfoTemplate
+        var infoTemplate = new InfoTemplate("Attributes", "${*}");
+        infoTemplate.setContent(content);
+        layer.setInfoTemplates({
+            17: {
+                infoTemplate: infoTemplate
+            }
+        });
+    };
+
+});
+</script>
+
+</html>
